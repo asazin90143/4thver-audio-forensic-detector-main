@@ -1,23 +1,19 @@
 "use client";
+
 export const dynamic = "force-dynamic";
 
-import loadDynamic from "next/dynamic";
+import type React from "react"
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Mic, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-
-// dynamically import browser-only components
-const AudioAnalysis = loadDynamic(() => import("./components/audio-analysis"), { ssr: false });
-const SonarView = loadDynamic(() => import("./components/sonar-view"), { ssr: false });
-const AudioSettings = loadDynamic(() => import("./components/audio-settings"), { ssr: false });
-const LiveVisualization = loadDynamic(() => import("./components/live-visualization"), { ssr: false });
-
-
-
+import { useState, useRef, useEffect, useCallback } from "react"
+import { Mic, Upload } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import AudioAnalysis from "./components/audio-analysis"
+import SonarView from "./components/sonar-view"
+import AudioSettings from "./components/audio-settings"
+import LiveVisualization from "./components/live-visualization"
 
 // ... rest of your existing code unchanged ...
 
@@ -39,6 +35,12 @@ export default function AudioForensicDetector() {
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [recordingStatus, setRecordingStatus] = useState<string>("")
+  const [canRecord, setCanRecord] = useState(false) // 👈 New state to track recording capability
+  const [browserSupport, setBrowserSupport] = useState({
+    isSupported: false,
+    isSecure: false,
+    hasMediaRecorder: false,
+  }) // 👈 New state for detailed support info
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
@@ -48,7 +50,16 @@ export default function AudioForensicDetector() {
 
   const tabs = ["Record", "Upload", "Analyze", "Sonar View", "About Us", "Settings"]
 
+  // 👈 New useEffect to check for browser APIs on the client
   useEffect(() => {
+    // This code will only run in the browser after the component has mounted
+    const isSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    const isSecure = window.isSecureContext;
+    const hasMediaRecorder = typeof MediaRecorder !== 'undefined';
+
+    setBrowserSupport({ isSupported, isSecure, hasMediaRecorder });
+    setCanRecord(isSupported && isSecure && hasMediaRecorder);
+
     return () => {
       if (recordingIntervalRef.current) {
         clearInterval(recordingIntervalRef.current)
@@ -59,19 +70,19 @@ export default function AudioForensicDetector() {
     }
   }, [])
 
+
   const startRecording = async () => {
     try {
       setRecordingStatus("Requesting microphone access...")
 
-      // Check if we're in a secure context (HTTPS or localhost)
-      if (typeof window !== "undefined" && window.isSecureContext) {  
+      // The checks are now performed here on the client side
+      if (!browserSupport.isSecure) {
         setRecordingStatus("Error: HTTPS required for microphone access")
         alert("Microphone access requires HTTPS or localhost. Please use a secure connection.")
         return
       }
 
-      // Check if getUserMedia is supported
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      if (!browserSupport.isSupported) {
         setRecordingStatus("Error: Browser doesn't support audio recording")
         alert(
           "Your browser doesn't support audio recording. Please use a modern browser like Chrome, Firefox, or Safari.",
@@ -417,18 +428,8 @@ export default function AudioForensicDetector() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
-  const checkMicrophoneSupport = () => {
-    const isSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
-    const isSecure = window.isSecureContext
-    const hasMediaRecorder = typeof MediaRecorder !== "undefined"
-
-    return {
-      isSupported,
-      isSecure,
-      hasMediaRecorder,
-      canRecord: isSupported && isSecure && hasMediaRecorder,
-    }
-  }
+  // ❌ The checkMicrophoneSupport function has been removed.
+  // We now use the state variables updated by useEffect.
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -470,22 +471,17 @@ export default function AudioForensicDetector() {
               </p>
 
               {/* Browser Compatibility Check */}
-              {(() => {
-                const support = checkMicrophoneSupport()
-                if (!support.canRecord) {
-                  return (
-                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-2xl mx-auto">
-                      <h3 className="font-semibold text-yellow-800 mb-2">Recording Requirements</h3>
-                      <ul className="text-sm text-yellow-700 space-y-1">
-                        {!support.isSecure && <li>• HTTPS connection required for microphone access</li>}
-                        {!support.isSupported && <li>• Browser doesn't support audio recording</li>}
-                        {!support.hasMediaRecorder && <li>• MediaRecorder API not available</li>}
-                      </ul>
-                    </div>
-                  )
-                }
-                return null
-              })()}
+              {/* 👈 The IIFE is replaced with a direct check on the state variables */}
+              {!canRecord && (
+                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-2xl mx-auto">
+                  <h3 className="font-semibold text-yellow-800 mb-2">Recording Requirements</h3>
+                  <ul className="text-sm text-yellow-700 space-y-1 text-left">
+                    {!browserSupport.isSecure && <li>• HTTPS connection required for microphone access</li>}
+                    {!browserSupport.isSupported && <li>• Browser doesn't support audio recording</li>}
+                    {!browserSupport.hasMediaRecorder && <li>• MediaRecorder API not available</li>}
+                  </ul>
+                </div>
+              )}
 
               {/* Recording Status */}
               {recordingStatus && (
@@ -497,7 +493,7 @@ export default function AudioForensicDetector() {
               <div className="space-y-6">
                 <Button
                   onClick={isRecording ? stopRecording : startRecording}
-                  disabled={!checkMicrophoneSupport().canRecord}
+                  disabled={!canRecord} // 👈 We now disable the button based on the `canRecord` state
                   className={`px-8 py-4 text-lg font-medium rounded-lg transition-all ${isRecording
                     ? "bg-red-600 hover:bg-red-700 text-white"
                     : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
