@@ -1,7 +1,8 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import dynamic from "next/dynamic";
+import loadDynamic from "next/dynamic";
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Mic, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 // dynamically import browser-only components
-const AudioAnalysis = dynamic(() => import("./components/audio-analysis"), { ssr: false });
+const AudioAnalysis = loadDynamic(() => import("./components/audio-analysis"), { ssr: false });
 const SonarView = dynamic(() => import("./components/sonar-view"), { ssr: false });
 const AudioSettings = dynamic(() => import("./components/audio-settings"), { ssr: false });
 const LiveVisualization = dynamic(() => import("./components/live-visualization"), { ssr: false });
