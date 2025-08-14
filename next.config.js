@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Removed deprecated `appDir` — it's always enabled in Next.js 14
   experimental: {
-    appDir: true,
+    // other experimental flags can go here if needed
   },
   typescript: {
     ignoreBuildErrors: false,
@@ -24,15 +25,15 @@ const nextConfig = {
           outputPath: "static/audio/",
         },
       },
-    })
+    });
 
     config.module.rules.push({
       test: /\.py$/,
       use: "raw-loader",
-    })
+    });
 
-    return config
+    return config;
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
