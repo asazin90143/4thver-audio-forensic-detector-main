@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "es6"],
+    "target": "es2015",               // was "es5"
+    "downlevelIteration": true,       // added to allow Set/Map iteration
+    "lib": ["dom", "dom.iterable", "es2015"], // updated from "es6" to "es2015"
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
