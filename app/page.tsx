@@ -27,7 +27,10 @@ export default function AudioForensicDetector() {
   const [audioData, setAudioData] = useState<AudioData | null>(null)
   const [recordingTime, setRecordingTime] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [analysisProgress, setAnalysisProgress] = useState(0)
+  const [analysisProgress, setAnalysisProgress] = useState(0)git add .
+    git commit -m "Fix window access for SSR compatibility"
+git push
+
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [recordingStatus, setRecordingStatus] = useState<string>("")
 
