@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: 4thver-audio-forensic-detector
+    env: docker
+    repo: https://github.com/asazin90143/4thver-audio-forensic-detector-main
+    branch: main
+    autoDeploy: true
+    plan: free
+    envVars:
+      - key: PORT
+        value: "10000" # Render overrides automatically
