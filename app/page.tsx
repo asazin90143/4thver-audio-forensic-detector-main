@@ -1,5 +1,8 @@
 "use client"
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import type React from "react"
 
 import { useState, useRef, useEffect, useCallback } from "react"
@@ -12,6 +15,9 @@ import AudioAnalysis from "./components/audio-analysis"
 import SonarView from "./components/sonar-view"
 import AudioSettings from "./components/audio-settings"
 import LiveVisualization from "./components/live-visualization"
+
+// ... rest of your existing code unchanged ...
+
 
 interface AudioData {
   blob: Blob
