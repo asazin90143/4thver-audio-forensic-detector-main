@@ -1,20 +1,21 @@
 "use client";
-
 export const dynamic = "force-dynamic";
 
+import dynamic from "next/dynamic";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Mic, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
-import type React from "react"
+// dynamically import browser-only components
+const AudioAnalysis = dynamic(() => import("./components/audio-analysis"), { ssr: false });
+const SonarView = dynamic(() => import("./components/sonar-view"), { ssr: false });
+const AudioSettings = dynamic(() => import("./components/audio-settings"), { ssr: false });
+const LiveVisualization = dynamic(() => import("./components/live-visualization"), { ssr: false });
 
-import { useState, useRef, useEffect, useCallback } from "react"
-import { Mic, Upload } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import AudioAnalysis from "./components/audio-analysis"
-import SonarView from "./components/sonar-view"
-import AudioSettings from "./components/audio-settings"
-import LiveVisualization from "./components/live-visualization"
+
 
 // ... rest of your existing code unchanged ...
 
@@ -61,7 +62,7 @@ export default function AudioForensicDetector() {
       setRecordingStatus("Requesting microphone access...")
 
       // Check if we're in a secure context (HTTPS or localhost)
-      if (!window.isSecureContext) {
+      if (typeof window !== "undefined" && window.isSecureContext) {  
         setRecordingStatus("Error: HTTPS required for microphone access")
         alert("Microphone access requires HTTPS or localhost. Please use a secure connection.")
         return
