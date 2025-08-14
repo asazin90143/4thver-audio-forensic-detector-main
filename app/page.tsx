@@ -1,6 +1,16 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import React, { useEffect, useState, useRef } from "react";
+import { Mic, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import AudioAnalysis from "./components/audio-analysis";
+import SonarView from "./components/sonar-view";
+import AudioSettings from "./components/audio-settings";
+import LiveVisualization from "./components/live-visualization";
 
 interface AudioData {
   url: string;
@@ -19,18 +29,14 @@ export default function HomePage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Recording setup
+  // Cleanup timer when unmounting
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
 
   const startRecording = async () => {
-    if (typeof window === "undefined") return;
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -60,8 +66,6 @@ export default function HomePage() {
   };
 
   const stopRecording = () => {
-    if (typeof window === "undefined") return;
-
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
@@ -70,8 +74,7 @@ export default function HomePage() {
   };
 
   const playAudio = () => {
-    if (typeof window === "undefined" || !audioData) return;
-
+    if (!audioData) return;
     const audio = new Audio(audioData.url);
     audioRef.current = audio;
     setIsPlaying(true);
@@ -96,29 +99,46 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Audio Forensic Detector</h1>
+    <div className="p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Audio Forensic Detector</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!isRecording ? (
+            <Button onClick={startRecording}>
+              <Mic className="mr-2 h-4 w-4" /> Start Recording
+            </Button>
+          ) : (
+            <Button variant="destructive" onClick={stopRecording}>
+              <Mic className="mr-2 h-4 w-4" /> Stop Recording
+            </Button>
+          )}
 
-      {!isRecording ? (
-        <button onClick={startRecording}>🎤 Start Recording</button>
-      ) : (
-        <button onClick={stopRecording}>⏹ Stop Recording</button>
-      )}
+          <p>Recording Time: {recordingTime}s</p>
 
-      <p>Recording Time: {recordingTime}s</p>
+          {audioData && (
+            <div className="space-x-2">
+              <Button onClick={playAudio} disabled={isPlaying}>
+                ▶ Play Recording
+              </Button>
+              <Button onClick={analyzeAudio} disabled={isAnalyzing}>
+                🔍 Analyze Audio
+              </Button>
+            </div>
+          )}
 
-      {audioData && (
-        <div>
-          <button onClick={playAudio} disabled={isPlaying}>
-            ▶ Play Recording
-          </button>
-          <button onClick={analyzeAudio} disabled={isAnalyzing}>
-            🔍 Analyze Audio
-          </button>
-        </div>
-      )}
+          {isAnalyzing && (
+            <Progress value={analysisProgress} className="w-full" />
+          )}
 
-      {isAnalyzing && <p>Analysis Progress: {analysisProgress}%</p>}
+          {/* Keep your original visual components */}
+          <LiveVisualization />
+          <AudioAnalysis />
+          <SonarView />
+          <AudioSettings />
+        </CardContent>
+      </Card>
     </div>
   );
 }
