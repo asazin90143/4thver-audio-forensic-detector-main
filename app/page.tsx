@@ -12,9 +12,10 @@ import { Progress } from "@/components/ui/progress";
 
 // dynamically import browser-only components
 const AudioAnalysis = loadDynamic(() => import("./components/audio-analysis"), { ssr: false });
-const SonarView = dynamic(() => import("./components/sonar-view"), { ssr: false });
-const AudioSettings = dynamic(() => import("./components/audio-settings"), { ssr: false });
-const LiveVisualization = dynamic(() => import("./components/live-visualization"), { ssr: false });
+const SonarView = loadDynamic(() => import("./components/sonar-view"), { ssr: false });
+const AudioSettings = loadDynamic(() => import("./components/audio-settings"), { ssr: false });
+const LiveVisualization = loadDynamic(() => import("./components/live-visualization"), { ssr: false });
+
 
 
 
