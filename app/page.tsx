@@ -27,10 +27,7 @@ export default function AudioForensicDetector() {
   const [audioData, setAudioData] = useState<AudioData | null>(null)
   const [recordingTime, setRecordingTime] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [analysisProgress, setAnalysisProgress] = useState(0)git add .
-    git commit -m "Fix window access for SSR compatibility"
-git push
-
+  const [analysisProgress, setAnalysisProgress] = useState(0)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [recordingStatus, setRecordingStatus] = useState<string>("")
 
@@ -442,11 +439,10 @@ git push
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                activeTab === tab
-                  ? "bg-purple-600 text-white shadow-lg"
-                  : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
-              }`}
+              className={`px-6 py-3 rounded-lg font-medium transition-all ${activeTab === tab
+                ? "bg-purple-600 text-white shadow-lg"
+                : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                }`}
             >
               {tab}
             </button>
@@ -493,11 +489,10 @@ git push
                 <Button
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={!checkMicrophoneSupport().canRecord}
-                  className={`px-8 py-4 text-lg font-medium rounded-lg transition-all ${
-                    isRecording
-                      ? "bg-red-600 hover:bg-red-700 text-white"
-                      : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  }`}
+                  className={`px-8 py-4 text-lg font-medium rounded-lg transition-all ${isRecording
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    }`}
                 >
                   <Mic className="w-5 h-5 mr-2" />
                   {isRecording ? "Stop Recording" : "Start Recording"}
